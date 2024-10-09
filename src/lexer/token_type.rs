@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
     // Literals
     STRING,
@@ -23,27 +24,27 @@ pub enum TokenType {
     SUPER,
 
     //Characters - Single
-    LEFT_PAREN,
-    RIGHT_PAREN,
-    LEFT_BRACE,
-    RIGHT_BRACE,
+    LEFTPAREN,
+    RIGHTPAREN,
+    LEFTBRACE,
+    RIGHTBRACE,
     COMMA,
     DOT,
     MINUS,
     PLUS,
-    SEMI_COLON,
+    SEMICOLON,
     SLASH,
     STAR,
 
     //Characters - Double
     BANG,
-    BANG_EQUAL,
+    BANGEQUAL,
     EQUAL,
-    EQUAL_EQUAL,
+    EQUALEQUAL,
     GREATER,
-    GREATER_EQUAL,
+    GREATEREQUAL,
     LESS,
-    LESS_EQUAL,
+    LESSEQUAL,
 
     EOF
 }

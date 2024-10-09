@@ -1,5 +1,7 @@
 use std::{env, fs::File, io::Read, process};
 
+use netlat::lexer::Lexer;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -18,7 +20,8 @@ fn run(file_name: &str) {
             let mut contents = String::new();
             match file.read_to_string(&mut contents) {
                 Ok(_) => {
-                    println!("File contents:\n{}", contents);
+                    let lexer = Lexer::new(contents);
+                    todo!()
                 },
                 Err(e) => {
                     eprintln!("Error: {}", e);

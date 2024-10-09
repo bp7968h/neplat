@@ -3,3 +3,5 @@ pub mod token;
 pub mod lexer;
 
 pub use token_type::TokenType;
+pub use token::{Token, Literal};
+pub use lexer::Lexer;

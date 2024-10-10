@@ -24,10 +24,12 @@ impl Token {
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?} {}", self.token_type, self.lexeme)?;
         match &self.literal {
-            Some(literal) => write!(f, "{:?} {} {}", self.token_type, self.lexeme, literal),
-            None => write!(f, "{:?} {} NonLiteral", self.token_type, self.lexeme),
+            Some(literal) => write!(f, " {}", literal)?,
+            None => write!(f, " NonLiteral")?,
         }
+        Ok(())
     }
 }
 

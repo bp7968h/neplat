@@ -1,13 +1,13 @@
 use super::{Token, TokenType};
 
-pub struct Lexer {
-    source: String,
+pub struct Lexer<'a> {
+    source: &'a [u8],
     current: usize,
     line: usize,
 }
 
-impl Lexer {
-    pub fn new(source: String) -> Self {
+impl<'a> Lexer<'a> {
+    pub fn new(source: &'a [u8]) -> Self {
         Self {
             source,
             current: 0,
@@ -32,18 +32,17 @@ impl Lexer {
         let single_character = self.advance();
 
         match single_character {
-            Some(c) => match c {
-                '(' => Some(self.create_token(TokenType::LEFTPAREN)),
-                ')' => Some(self.create_token(TokenType::RIGHTPAREN)),
-                '{' => Some(self.create_token(TokenType::LEFTBRACE)),
-                '}' => Some(self.create_token(TokenType::RIGHTBRACE)),
-                ',' => Some(self.create_token(TokenType::COMMA)),
-                '.' => Some(self.create_token(TokenType::DOT)),
-                '-' => Some(self.create_token(TokenType::MINUS)),
-                '+' => Some(self.create_token(TokenType::PLUS)),
-                ';' => Some(self.create_token(TokenType::SEMICOLON)),
-                '*' => Some(self.create_token(TokenType::STAR)),
-                '!' => {
+                b'(' => Some(self.create_token(TokenType::LEFTPAREN)),
+                b')' => Some(self.create_token(TokenType::RIGHTPAREN)),
+                b'{' => Some(self.create_token(TokenType::LEFTBRACE)),
+                b'}' => Some(self.create_token(TokenType::RIGHTBRACE)),
+                b',' => Some(self.create_token(TokenType::COMMA)),
+                b'.' => Some(self.create_token(TokenType::DOT)),
+                b'-' => Some(self.create_token(TokenType::MINUS)),
+                b'+' => Some(self.create_token(TokenType::PLUS)),
+                b';' => Some(self.create_token(TokenType::SEMICOLON)),
+                b'*' => Some(self.create_token(TokenType::STAR)),
+                b'!' => {
                     if self.match_char('=') {
                         Some(self.create_token(TokenType::BANGEQUAL))
                     } else {
@@ -51,20 +50,19 @@ impl Lexer {
                     }
                 },
                 _ => todo!(),
-            },
-            None => {
-                todo!()
             }
-        }
     }
 
-    fn match_char(&self, c: char) -> bool {
-        if (self.is_at_end()) {
+    fn match_char(&mut self, expected: char) -> bool {
+        if self.is_at_end() {
             return false
         }
 
-        // if let Some()
+        if (self.source[self.current] as char) != expected {
+            return false
+        }
 
+        self.current += 1;
         true
     }
 
@@ -77,14 +75,10 @@ impl Lexer {
         )
     }
 
-    fn advance(&mut self) -> Option<char> {
-        if self.is_at_end() {
-            None
-        } else {
-            let c = self.source.chars().nth(self.current);
-            self.current += 1;
-            c
-        }
+    fn advance(&mut self) -> u8 {
+        let c = self.source[self.current];
+        self.current += 1;
+        c
     }
 
     fn is_at_end(&self) -> bool {

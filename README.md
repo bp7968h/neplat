@@ -44,10 +44,11 @@ The table below lists the English (Latin) keywords and their corresponding Nepal
 | var           | manum            |
 | while         | jaba_samma       |
 | class         | samuha           |
-| this          | yo               |
+| this          | yei              |
 | super         | affnai           |
 | minus         | ghatau           |
 | plus          | joda             |
+| bang          | ulto             |
 | bangequal     | barabar_chaina   |
 | equal         | bhaneko          |
 | equalequal    | barabar          |
@@ -55,3 +56,13 @@ The table below lists the English (Latin) keywords and their corresponding Nepal
 | greaterequal  | thulo_wa_barabar |
 | less          | bhanda_sano      |
 | lessequal     | sano_wa_barabar  |
+
+## How to Get Started
+
+- Clone the repository.
+- Follow the instructions in the setup guide to install the necessary dependencies.
+- Start coding using either English or Nepali keywords as shown in the example above.
+
+## Contributing
+
+We welcome contributions to enhance the language, add more keywords, or improve functionality. Feel free to submit pull requests or open issues for discussion.

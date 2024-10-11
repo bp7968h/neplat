@@ -46,16 +46,16 @@ The table below lists the English (Latin) keywords and their corresponding Nepal
 | class         | samuha           |
 | this          | yei              |
 | super         | affnai           |
-| minus         | ghatau           |
-| plus          | joda             |
-| bang          | ulto             |
-| bangequal     | barabar_chaina   |
-| equal         | bhaneko          |
-| equalequal    | barabar          |
-| greater       | bhanda_thulo     |
-| greaterequal  | thulo_wa_barabar |
-| less          | bhanda_sano      |
-| lessequal     | sano_wa_barabar  |
+| -             | ghatau           |
+| +             | joda             |
+| !             | ulto             |
+| !=            | barabar_chaina   |
+| =             | bhaneko          |
+| ==            | barabar          |
+| >             | bhanda_thulo     |
+| >=            | thulo_wa_barabar |
+| <             | bhanda_sano      |
+| <=            | sano_wa_barabar  |
 
 ## How to Get Started
 

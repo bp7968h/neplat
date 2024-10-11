@@ -22,6 +22,14 @@ fn run(file_name: &str) {
                 Ok(_) => {
                     let mut lexer = Lexer::new(contents.as_bytes());
                     let tokens = lexer.tokenize();
+
+                    if !lexer.get_errors().is_empty() {
+                        println!("Errors encountered: ");
+                        for error in lexer.get_errors() {
+                            println!("\t{:?}", error);
+                        }
+                        process::exit(1);
+                    }
                     
                     for i in tokens.iter() {
                         println!("{}", i);

@@ -1,3 +1,5 @@
+use core::fmt;
+
 #[derive(Debug)]
 pub enum LexError {
     UnexpectedCharacter(char, usize),

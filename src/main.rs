@@ -20,8 +20,13 @@ fn run(file_name: &str) {
             let mut contents = String::new();
             match file.read_to_string(&mut contents) {
                 Ok(_) => {
-                    let lexer = Lexer::new(contents.as_bytes());
-                    todo!()
+                    let mut lexer = Lexer::new(contents.as_bytes());
+                    let tokens = lexer.tokenize();
+                    
+                    for i in tokens.iter() {
+                        println!("{}", i);
+                    }
+                
                 },
                 Err(e) => {
                     eprintln!("Error: {}", e);

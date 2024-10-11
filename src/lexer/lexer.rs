@@ -44,13 +44,83 @@ impl<'a> Lexer<'a> {
                 b'*' => Some(self.create_token(TokenType::STAR)),
                 b'!' => {
                     if self.match_char('=') {
-                        Some(self.create_token(TokenType::BANGEQUAL))
+                        return Some(self.create_token(TokenType::BANGEQUAL))
+                    }
+                    Some(self.create_token(TokenType::BANG))
+                },
+                b'=' => {
+                    if self.match_char('=') {
+                        return Some(self.create_token(TokenType::EQUALEQUAL))
+                    }
+                    Some(self.create_token(TokenType::EQUAL))
+                },
+                b'<' => {
+                    if self.match_char('=') {
+                        return Some(self.create_token(TokenType::LESSEQUAL))
+                    }
+                    Some(self.create_token(TokenType::LESS))
+                },
+                b'>' => {
+                    if self.match_char('=') {
+                        return Some(self.create_token(TokenType::GREATEREQUAL))
+                    }
+                    Some(self.create_token(TokenType::GREATER))
+                },
+                b'/' => {
+                    if self.match_char('/') {
+                        while self.peek() != '\n' && !self.is_at_end() {
+                            self.advance();
+                        }
+                        None
+                    } else if self.match_char('*') {
+                        while self.peek() != '*' && self.peek_next() != '/' && !self.is_at_end() {
+                            if self.peek() == '\n' {
+                                self.line += 1;
+                            }
+                            self.advance();
+                        }
+
+                        if !self.is_at_end() {
+                            self.advance();
+                        }
+
+                        if !self.is_at_end() {
+                            self.advance();
+                        }
+
+                        None
                     } else {
-                        Some(self.create_token(TokenType::BANG))
+                        Some(self.create_token(TokenType::SLASH))
                     }
                 },
-                _ => todo!(),
+                b' ' | b'\r' | b'\t' => None,
+                b'\n' => {
+                    self.line += 1;
+                    None
+                },
+                b'"' => {
+                    todo!()
+                },
+                other => {
+                    todo!()
+                }
             }
+    }
+
+    fn peek_next(&self) -> char {
+        if self.current + 1 >= self.source.len() {
+            return '\0';
+        }
+
+        self.source[self.current + 1] as char 
+    }
+
+    fn peek(&self) -> char {
+        if self.is_at_end() {
+            return '\0';
+        }
+
+        self.source[self.current] as char
     }
 
     fn match_char(&mut self, expected: char) -> bool {

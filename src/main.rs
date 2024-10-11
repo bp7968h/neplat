@@ -26,7 +26,7 @@ fn run(file_name: &str) {
                     if !lexer.get_errors().is_empty() {
                         println!("Errors encountered: ");
                         for error in lexer.get_errors() {
-                            println!("\t{:?}", error);
+                            println!("\t{}", error);
                         }
                         process::exit(1);
                     }

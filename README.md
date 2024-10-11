@@ -22,6 +22,7 @@ if (x > y) {            // Uses English for conditionals
 } athwa {               // Uses Nepali for else condition
     print("false");     // Another print in English
 }
+```
 
 ## Keyword mapping
 

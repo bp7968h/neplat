@@ -1,4 +1,4 @@
-use super::{Token, TokenType, LexError};
+use super::{Token, TokenType, Literal, LexError};
 
 pub struct Lexer<'a> {
     source: &'a [u8],
@@ -106,17 +106,39 @@ impl<'a> Lexer<'a> {
                 },
                 b'"' => Some(self.handle_string()),
                 b'0'..=b'9' => Some(self.handle_number()),
-                b'a'..=b'z' | b'A'..=b'Z' | b'_' => {
-                    todo!()
-                }
+                b'a'..=b'z' | b'A'..=b'Z' | b'_' => Some(self.handle_identifier()),
                 other => {
                     None
                 }
             }
     }
 
-    fn handle_number(&mut self) -> Token {
+    fn handle_identifier(&mut self) -> Token {
         todo!()
+    }
+
+    fn handle_number(&mut self) -> Token {
+        let mut value = String::new();
+
+        while self.peek().is_ascii_digit() {
+            value.push(self.advance() as char);
+        }
+
+        if self.peek() == '.' && self.peek_next().is_ascii_digit() {
+            value.push(self.advance() as char);
+
+            while self.peek().is_ascii_digit() {
+                value.push(self.advance() as char);
+            }
+        }
+
+        match value.parse::<f64>() {
+            Ok(number_value) => Token::new(TokenType::NUMBER, &value, Some(Literal::NumberLiteral(number_value)), self.line),
+            Err(_) => {
+                self.errors.push(LexError::InvalidNumber(self.line));
+                Token::new(TokenType::NUMBER, &value, None, self.line)
+            }
+        }
     }
 
     fn handle_string(&mut self) -> Token {

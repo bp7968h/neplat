@@ -1,9 +1,10 @@
-use super::{Token, TokenType};
+use super::{Token, TokenType, LexError};
 
 pub struct Lexer<'a> {
     source: &'a [u8],
     current: usize,
     line: usize,
+    errors: Vec<LexError>,
 }
 
 impl<'a> Lexer<'a> {
@@ -12,7 +13,12 @@ impl<'a> Lexer<'a> {
             source,
             current: 0,
             line: 1,
+            errors: Vec::new(),
         }
+    }
+
+    pub fn get_errors(&self) -> &Vec<LexError> {
+        &self.errors
     }
 
     pub fn tokenize(&mut self) -> Vec<Token> {
@@ -98,13 +104,39 @@ impl<'a> Lexer<'a> {
                     self.line += 1;
                     None
                 },
-                b'"' => {
-                    todo!()
-                },
-                other => {
+                b'"' => Some(self.handle_string()),
+                b'0'..=b'9' => Some(self.handle_number()),
+                b'a'..=b'z' | b'A'..=b'Z' | b'_' => {
                     todo!()
                 }
+                other => {
+                    None
+                }
             }
+    }
+
+    fn handle_number(&mut self) -> Token {
+        todo!()
+    }
+
+    fn handle_string(&mut self) -> Token {
+        let mut value = String::new();
+
+        while self.peek() != '"' && !self.is_at_end() {
+            if self.peek() == '\n' {
+                self.line += 1;
+            }
+            value.push(self.advance() as char);
+        }
+
+        if self.is_at_end() {
+            self.errors.push(LexError::UnterminatedString(self.line));
+            return Token::new(TokenType::STRING, &value, None, self.line);
+        }
+
+        self.advance();
+
+        Token::new(TokenType::STRING, &value, None, self.line)
     }
 
     fn peek_next(&self) -> char {

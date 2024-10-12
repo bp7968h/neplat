@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "netlat"
+name = "neplat"
 version = "0.1.0"

@@ -1,6 +1,6 @@
 use std::{env, fs::File, io::Read, process};
 
-use netlat::lexer::Lexer;
+use neplat::lexer::Lexer;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

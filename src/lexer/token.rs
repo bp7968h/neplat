@@ -20,6 +20,14 @@ impl Token {
             line
         }
     }
+
+    pub fn token_type(&self) -> &TokenType {
+        &self.token_type
+    }
+
+    pub fn lexeme(&self) -> &str {
+        &self.lexeme
+    }
 }
 
 impl fmt::Display for Token {

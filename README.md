@@ -24,7 +24,7 @@ if (x > y) {            // Uses English for conditionals
 }
 ```
 
-## Keyword mapping
+## Keyword Mapping
 
 The table below lists the English (Latin) keywords and their corresponding Nepalese transliterations. You can use either version in your code:
 
@@ -46,6 +46,13 @@ The table below lists the English (Latin) keywords and their corresponding Nepal
 | class         | samuha           |
 | this          | yei              |
 | super         | affnai           |
+
+## Operator Mapping
+
+The table below lists the Normal operators and their corresponding Nepalese transliterations. You can use either version in your code:
+
+| **Normal**     | **Nepalese**     |
+|---------------|------------------|
 | -             | ghatau           |
 | +             | joda             |
 | !             | ulto             |

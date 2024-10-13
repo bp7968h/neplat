@@ -102,15 +102,15 @@ impl<'a> Parser<'a> {
         if self.match_token_types(&[TokenType::FALSE]) {
             return Some(Expr::Literal(Literal::BooleanLiteral(false)));
         }
-
+    
         if self.match_token_types(&[TokenType::TRUE]) {
             return Some(Expr::Literal(Literal::BooleanLiteral(true)));
         }
-
+    
         if self.match_token_types(&[TokenType::NULL]) {
             return Some(Expr::Literal(Literal::NullLiteral));
         }
-
+    
         if self.match_token_types(&[TokenType::NUMBER, TokenType::STRING]) {
             if let Some(literal) = self.previous().literal() {
                 return Some(Expr::Literal(literal.clone()));
@@ -122,28 +122,25 @@ impl<'a> Parser<'a> {
                 return None;
             }
         }
-
+    
         if self.match_token_types(&[TokenType::LEFTPAREN]) {
             let expr = self.expression()?;
-            if self.consume(&TokenType::RIGHTPAREN).is_some() {
-                return Some(Expr::Grouping(Box::new(expr)));
-            } else {
-                // Handle unclosed parenthesis
-                self.errors.push(ParserError::UnclosedParen {
-                    line: self.previous().line().clone(),
-                    lexeme: self.previous().lexeme().to_string(),
-                });
+    
+            if self.consume(&TokenType::RIGHTPAREN).is_none() {
                 return None;
             }
+    
+            return Some(Expr::Grouping(Box::new(expr)));
         }
-
+    
         self.errors.push(ParserError::ExpectedExpression {
             line: self.peek().line().clone(),
             lexeme: self.peek().lexeme().to_string(),
         });
-
+    
         None
     }
+    
 
     fn consume(&mut self, token_type: &TokenType) -> Option<&Token> {
         if self.check(token_type) {
@@ -152,10 +149,18 @@ impl<'a> Parser<'a> {
 
         let peeked_token = self.peek();
 
-        self.errors.push(ParserError::UnclosedParen {
-            line: peeked_token.line().clone(),
-            lexeme: peeked_token.lexeme().to_string(),
-        });
+        if self.is_at_end() {
+            self.errors.push(ParserError::UnclosedParen {
+                line: peeked_token.line().clone(),
+                lexeme: String::from("end"),
+            });
+        } else {
+            self.errors.push(ParserError::UnclosedParen {
+                line: peeked_token.line().clone(),
+                lexeme: peeked_token.lexeme().to_string(),
+            });
+        }
+        
         None
     }
 
@@ -206,7 +211,11 @@ impl<'a> Parser<'a> {
         if !self.is_at_end() {
             self.current += 1;
         }
-
+        // println!(
+        //     "advance() -> current: {}, previous: {:?}",
+        //     self.current,
+        //     self.previous()
+        // );
         self.previous()
     }
 

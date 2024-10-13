@@ -33,6 +33,8 @@ fn run(file_name: &str) {
 
                     let mut parser = Parser::new(&tokens);
                     if let Some(ast) = parser.parse() {
+                        println!("Parsed AST: {}", ast);
+                    } else {
                         if !parser.get_errors().is_empty() {
                             println!("Parse Errors encountered: ");
                             for error in parser.get_errors() {
@@ -40,8 +42,6 @@ fn run(file_name: &str) {
                             }
                             process::exit(1);
                         }
-
-                        println!("Parsed AST: {}", ast);
                     }
                 }
                 Err(e) => {

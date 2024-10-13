@@ -93,11 +93,18 @@ impl Visitor<Option<Literal>> for Interpreter {
                     // Handle numeric addition
                     (Literal::NumberLiteral(left_num), Literal::NumberLiteral(right_num)) => {
                         Some(Literal::NumberLiteral(left_num + right_num))
-                    }
+                    },
                     // Handle string concatenation with +
                     (Literal::StringLiteral(left_str), Literal::StringLiteral(right_str)) => {
                         Some(Literal::StringLiteral(left_str + &right_str))
-                    }
+                    },
+                    // Handle string + number or number + string
+                    (Literal::StringLiteral(left_str), Literal::NumberLiteral(right_num)) => {
+                        Some(Literal::StringLiteral(left_str + &right_num.to_string()))
+                    },
+                    (Literal::NumberLiteral(left_num), Literal::StringLiteral(right_str)) => {
+                        Some(Literal::StringLiteral(left_num.to_string() + &right_str))
+                    },
                     _ => {
                         self.report_error(InterpretError::TypeMismatch(
                             "Type mismatch in addition".to_string(),

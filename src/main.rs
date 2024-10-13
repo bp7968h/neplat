@@ -52,7 +52,7 @@ fn run(file_name: &str) {
                         }
                     } else {
                         if !parser.get_errors().is_empty() {
-                            println!("Parse Errors encountered: ");
+                            println!("Errors encountered: ");
                             for error in parser.get_errors() {
                                 println!("\t{}", error);
                             }

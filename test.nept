@@ -13,4 +13,4 @@
 //} athwa {               // Uses Nepali for else condition
 //    print("false");     // Another print in English
 //}
-1 + 2 + 3;
+1 + 2 + "asd";

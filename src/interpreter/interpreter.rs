@@ -14,7 +14,22 @@ impl Interpreter {
         Interpreter { errors: Vec::new() }
     }
 
-    pub fn evaluate(&mut self, expr: &Expr) -> Option<Literal> {
+    pub fn interpret(&mut self, expr: &Expr) -> Result<Literal, &Vec<InterpretError>> {
+        let result = self.evaluate(expr);
+
+        if !self.errors.is_empty() {
+            Err(&self.errors)
+        } else if let Some(value) = result {
+            Ok(value)
+        } else {
+            self.report_error(InterpretError::UnexpectedError(
+                "Evaluation produced no result.".to_string(),
+            ));
+            Err(&self.errors)
+        }
+    }
+
+    fn evaluate(&mut self, expr: &Expr) -> Option<Literal> {
         expr.accept(self)
     }
 

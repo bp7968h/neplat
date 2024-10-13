@@ -28,6 +28,14 @@ impl Token {
     pub fn lexeme(&self) -> &str {
         &self.lexeme
     }
+
+    pub fn literal(&self) -> &Option<Literal> {
+        &self.literal
+    }
+
+    pub fn line(&self) -> &usize {
+        &self.line
+    }
 }
 
 impl fmt::Display for Token {

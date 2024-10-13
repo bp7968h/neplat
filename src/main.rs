@@ -1,6 +1,6 @@
 use std::{env, fs::File, io::Read, process};
 
-use neplat::lexer::Lexer;
+use neplat::{Lexer, Parser};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -30,18 +30,26 @@ fn run(file_name: &str) {
                         }
                         process::exit(1);
                     }
-                    
-                    for i in tokens.iter() {
-                        println!("{}", i);
+
+                    let mut parser = Parser::new(&tokens);
+                    if let Some(ast) = parser.parse() {
+                        if !parser.get_errors().is_empty() {
+                            println!("Parse Errors encountered: ");
+                            for error in parser.get_errors() {
+                                println!("\t{}", error);
+                            }
+                            process::exit(1);
+                        }
+
+                        println!("Parsed AST: {}", ast);
                     }
-                
-                },
+                }
                 Err(e) => {
                     eprintln!("Error: {}", e);
                     process::exit(1);
                 }
             }
-        },
+        }
         Err(e) => {
             eprintln!("Error: {}", e);
             process::exit(1);

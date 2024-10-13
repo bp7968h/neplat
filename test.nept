@@ -1,15 +1,16 @@
-// this is a comment
-(( )){} // grouping stuff
-!*+-/=<> <= == // operators
-/* this
-	is
-		multi
-			line
-				comment*/
-manum x bhaneko 10;     // Declares a variable in Nepali
-let y = 5;              // Declares a variable in English
-if (x > y) {            // Uses English for conditionals
-    dekhau("Satya");    // Prints a message in Nepali
-} athwa {               // Uses Nepali for else condition
-    print("false");     // Another print in English
-}
+//// this is a comment
+//(( )){} // grouping stuff
+//!*+-/=<> <= == // operators
+///* this
+//	is
+//		multi
+//			line
+//				comment*/
+//manum x bhaneko 10;     // Declares a variable in Nepali
+//let y = 5;              // Declares a variable in English
+//if (x > y) {            // Uses English for conditionals
+//    dekhau("Satya");    // Prints a message in Nepali
+//} athwa {               // Uses Nepali for else condition
+//    print("false");     // Another print in English
+//}
+5 joda 3 * 4 ghatau 2 / 1;

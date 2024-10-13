@@ -4,6 +4,7 @@ pub struct Lexer<'a> {
     source: &'a [u8],
     current: usize,
     line: usize,
+    start: usize,
     errors: Vec<LexError>,
 }
 
@@ -13,6 +14,7 @@ impl<'a> Lexer<'a> {
             source,
             current: 0,
             line: 1,
+            start: 0,
             errors: Vec::new(),
         }
     }
@@ -35,6 +37,7 @@ impl<'a> Lexer<'a> {
     }
 
     fn scan_token(&mut self) -> Option<Token> {
+        self.start = self.current;
         let single_character = self.advance();
 
         match single_character {
@@ -186,23 +189,26 @@ impl<'a> Lexer<'a> {
     }
 
     fn handle_string(&mut self) -> Token {
-        let mut value = String::new();
+        let mut value = Vec::new();
 
         while self.peek() != '"' && !self.is_at_end() {
             if self.peek() == '\n' {
                 self.line += 1;
             }
-            value.push(self.advance() as char);
+            value.push(self.advance());
         }
 
         if self.is_at_end() {
             self.errors.push(LexError::UnterminatedString(self.line));
-            return Token::new(TokenType::STRING, &value, None, self.line);
+            let string_value = String::from_utf8_lossy(&value).to_string();
+
+            return Token::new(TokenType::STRING, &string_value, None, self.line);
         }
 
         self.advance();
+        let string_value = String::from_utf8_lossy(&value).to_string();
 
-        Token::new(TokenType::STRING, &value, None, self.line)
+        Token::new(TokenType::STRING, &string_value, None, self.line)
     }
 
     fn peek_next(&self) -> char {
@@ -235,7 +241,7 @@ impl<'a> Lexer<'a> {
     }
 
     fn create_token(&self, token: TokenType) -> Token {
-        let lexeme = String::from_utf8_lossy(&self.source[self.current - 1..self.current]).to_string();
+        let lexeme = std::str::from_utf8(&self.source[self.start..self.current]).unwrap();
         Token::new(token, &lexeme, None, self.line)
     }
 

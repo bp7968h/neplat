@@ -235,7 +235,8 @@ impl<'a> Lexer<'a> {
     }
 
     fn create_token(&self, token: TokenType) -> Token {
-        Token::new(token, "", None, self.line)
+        let lexeme = String::from_utf8_lossy(&self.source[self.current - 1..self.current]).to_string();
+        Token::new(token, &lexeme, None, self.line)
     }
 
     fn advance(&mut self) -> u8 {

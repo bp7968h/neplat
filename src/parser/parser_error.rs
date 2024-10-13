@@ -21,16 +21,16 @@ impl fmt::Display for ParserError {
         match self {
             ParserError::UnclosedParen { line, lexeme } => {
                 if lexeme.is_empty() {
-                    write!(f, "{} at end: Expect ')' after expression.", line)
+                    write!(f, "Line {} at end: Expect ')' after expression.", line)
                 } else {
-                    write!(f, "{} at '{}': Expect ')' after expression.", line, lexeme)
+                    write!(f, "Line {} at '{}': Expect ')' after expression.", line, lexeme)
                 }
             },
             ParserError::ExpectedExpression { line, lexeme } => {
-                write!(f, "{} at '{}': Expected expression.", line, lexeme)
+                write!(f, "Line {} at '{}': Expected expression.", line, lexeme)
             },
             ParserError::InvalidLiteral { line, lexeme } => {
-                write!(f, "{} at '{}': Invalid literal.", line, lexeme)
+                write!(f, "Line {} at '{}': Invalid literal.", line, lexeme)
             },
         }
     }

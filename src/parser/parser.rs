@@ -102,15 +102,15 @@ impl<'a> Parser<'a> {
         if self.match_token_types(&[TokenType::FALSE]) {
             return Some(Expr::Literal(Literal::BooleanLiteral(false)));
         }
-    
+
         if self.match_token_types(&[TokenType::TRUE]) {
             return Some(Expr::Literal(Literal::BooleanLiteral(true)));
         }
-    
+
         if self.match_token_types(&[TokenType::NULL]) {
             return Some(Expr::Literal(Literal::NullLiteral));
         }
-    
+
         if self.match_token_types(&[TokenType::NUMBER, TokenType::STRING]) {
             if let Some(literal) = self.previous().literal() {
                 return Some(Expr::Literal(literal.clone()));
@@ -122,25 +122,24 @@ impl<'a> Parser<'a> {
                 return None;
             }
         }
-    
+
         if self.match_token_types(&[TokenType::LEFTPAREN]) {
             let expr = self.expression()?;
-    
+
             if self.consume(&TokenType::RIGHTPAREN).is_none() {
                 return None;
             }
-    
+
             return Some(Expr::Grouping(Box::new(expr)));
         }
-    
+
         self.errors.push(ParserError::ExpectedExpression {
             line: self.peek().line().clone(),
             lexeme: self.peek().lexeme().to_string(),
         });
-    
+
         None
     }
-    
 
     fn consume(&mut self, token_type: &TokenType) -> Option<&Token> {
         if self.check(token_type) {
@@ -160,7 +159,7 @@ impl<'a> Parser<'a> {
                 lexeme: peeked_token.lexeme().to_string(),
             });
         }
-        
+
         None
     }
 

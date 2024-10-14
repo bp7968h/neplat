@@ -1,3 +1,5 @@
+use std::{clone, string::ParseError};
+
 use crate::lexer::{Literal, Token, TokenType};
 
 use super::{expr::Expr, parser_error::ParserError, stmt::Stmt};
@@ -30,7 +32,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        return statements;
+        statements
     }
 
     fn expression(&mut self) -> Option<Expr> {
@@ -38,7 +40,12 @@ impl<'a> Parser<'a> {
     }
 
     fn declaration(&mut self) -> Option<Stmt> {
-        todo!()
+        if self.match_token_types(&[TokenType::VAR]) {
+            return self.var_declaration();
+        }
+
+        self.synchronize();
+        None
     }
 
     fn statement(&mut self) -> Option<Stmt> {
@@ -61,6 +68,31 @@ impl<'a> Parser<'a> {
         }
 
         Some(Stmt::Print(expr))
+    }
+
+    fn var_declaration(&mut self) -> Option<Stmt> {
+        if let Some(var_name) = self.consume(&TokenType::IDENTIFIER).cloned() {
+            let mut initializer: Option<Expr> = None;
+            if self.match_token_types(&[TokenType::EQUAL]) {
+                initializer = self.expression();
+            }
+
+            if self.consume(&TokenType::SEMICOLON).is_none() {
+                self.errors.push(ParserError::ExpectedExpression {
+                    line: self.peek().line().clone(),
+                    lexeme: "Expected ';' after value.".to_string(),
+                });
+                return None;
+            }
+
+            return Some(Stmt::Var(var_name, initializer));
+        }
+
+        self.errors.push(ParserError::InvalidDecleration { 
+            line: self.peek().line().clone(), 
+            lexeme: "Expect variable name.".to_string() 
+        });
+        None 
     }
 
     fn expression_statement(&mut self) -> Option<Stmt> {
@@ -165,6 +197,10 @@ impl<'a> Parser<'a> {
             }
         }
 
+        if self.match_token_types(&[TokenType::IDENTIFIER]) {
+            return Some(Expr::Variable(self.previous().clone()));
+        }
+
         if self.match_token_types(&[TokenType::LEFTPAREN]) {
             let expr = self.expression()?;
 
@@ -205,7 +241,7 @@ impl<'a> Parser<'a> {
         None
     }
 
-    fn _synchronize(&mut self) {
+    fn synchronize(&mut self) {
         self.advance();
 
         while !self.is_at_end() {

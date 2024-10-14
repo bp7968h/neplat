@@ -8,7 +8,7 @@ use super::{expr::Expr, visitor::StmtVisitor};
 pub enum Stmt {
     Expression(Expr),
     Print(Expr),
-    Var(Token, Expr)
+    Var(Token, Option<Expr>)
 }
 
 impl Stmt {

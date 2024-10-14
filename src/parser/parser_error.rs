@@ -14,6 +14,10 @@ pub enum ParserError {
         line: usize,
         lexeme: String,
     },
+    InvalidDecleration {
+        line: usize,
+        lexeme: String,
+    }
 }
 
 impl fmt::Display for ParserError {
@@ -31,6 +35,9 @@ impl fmt::Display for ParserError {
             },
             ParserError::InvalidLiteral { line, lexeme } => {
                 write!(f, "Line {} at '{}': Invalid literal.", line, lexeme)
+            },
+            ParserError::InvalidDecleration { line, lexeme } => {
+                write!(f, "Line {} at '{}': Invalid decleration.", line, lexeme)
             },
         }
     }

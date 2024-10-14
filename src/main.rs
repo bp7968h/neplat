@@ -1,6 +1,6 @@
 use std::{env, fs::File, io::Read, process};
 
-use neplat::{interpreter::Interpreter, Lexer, Parser};
+use neplat::{Interpreter, Lexer, Parser};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -25,7 +25,7 @@ fn run(file_name: &str) {
                     let tokens = lexer.tokenize();
 
                     if !lexer.get_errors().is_empty() {
-                        println!("Errors encountered: ");
+                        eprintln!("Lex Errors encountered: ");
                         for error in lexer.get_errors() {
                             println!("\t{}", error);
                         }
@@ -34,31 +34,24 @@ fn run(file_name: &str) {
 
                     // Parsing
                     let mut parser = Parser::new(&tokens);
-                    if let Some(ast) = parser.parse() {
-                        println!("Parsed AST: {}", ast);
-                        // Interpreting
-                        let mut interpreter = Interpreter::new();
-                        match interpreter.interpret(&ast) {
-                            Ok(result) => {
-                                println!("Result: {:?}", result);
-                            }
-                            Err(errors) => {
-                                println!("Interpretation Errors encountered: ");
-                                for error in errors {
-                                    println!("\t{}", error);
-                                }
-                                process::exit(1);
-                            }
-                        }
-                    } else {
-                        if !parser.get_errors().is_empty() {
-                            println!("Errors encountered: ");
+                    let statements = parser.parse();
+
+                    if !parser.get_errors().is_empty() {
+                        eprintln!("Parse Errors encountered: ");
                             for error in parser.get_errors() {
-                                println!("\t{}", error);
+                                eprintln!("\t{}", error);
                             }
                             process::exit(1);
+                    }
+
+                    let mut interpreter = Interpreter::new();
+                    if let Err(errors) = interpreter.interpret(&statements) {
+                        eprintln!("Runtime Errors encountered: ");
+                        for error in errors {
+                            eprintln!("\t{}", error);
                         }
                     }
+                    
                 }
                 Err(e) => {
                     eprintln!("Error: {}", e);

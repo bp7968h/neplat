@@ -1,6 +1,6 @@
 use crate::{
     lexer::{Literal, TokenType},
-    parser::{expr::Expr, visitor::ExprVisitor},
+    parser::{expr::Expr, stmt::Stmt, visitor::{ExprVisitor, StmtVisitor}},
 };
 
 use super::interpret_error::InterpretError;
@@ -14,19 +14,20 @@ impl Interpreter {
         Interpreter { errors: Vec::new() }
     }
 
-    pub fn interpret(&mut self, expr: &Expr) -> Result<Literal, &Vec<InterpretError>> {
-        let result = self.evaluate(expr);
+    pub fn interpret(&mut self, statements: &[Stmt]) -> Result<(), &Vec<InterpretError>> {
+        for stmt in statements {
+            self.execute(stmt);
+        }
 
         if !self.errors.is_empty() {
             Err(&self.errors)
-        } else if let Some(value) = result {
-            Ok(value)
         } else {
-            self.report_error(InterpretError::UnexpectedError(
-                "Evaluation produced no result.".to_string(),
-            ));
-            Err(&self.errors)
+            Ok(())
         }
+    }
+
+    fn execute(&mut self, stmt: &Stmt) {
+        stmt.accept(self);
     }
 
     fn evaluate(&mut self, expr: &Expr) -> Option<Literal> {
@@ -267,5 +268,29 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
         } else {
             None
         }
+    }
+
+    fn vist_variable_expr(&mut self, expr: &Expr) -> Option<Literal> {
+        todo!()
+    }
+}
+
+impl StmtVisitor<()> for Interpreter {
+    fn visit_expression_stmt(&mut self, stmt: &Stmt) -> () {
+        if let Stmt::Expression(expr) = stmt {
+            self.evaluate(expr);
+        }
+    }
+
+    fn visit_print_stmt(&mut self, stmt: &Stmt) -> () {
+        if let Stmt::Print(expr) = stmt {
+            if let Some(value) = self.evaluate(expr) {
+                println!("{}", value);
+            }
+        }
+    }
+
+    fn visit_var_stmt(&mut self, stmt: &Stmt) -> () {
+        todo!()
     }
 }

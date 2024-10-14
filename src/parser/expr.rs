@@ -10,6 +10,7 @@ pub enum Expr {
     Grouping(Box<Expr>),
     Literal(Literal),
     Unary(Token, Box<Expr>),
+    Variable(Token),
 }
 
 impl Expr {
@@ -19,6 +20,7 @@ impl Expr {
             Expr::Grouping(_group) => visitor.visit_grouping_expression(self),
             Expr::Literal(_value) => visitor.visit_literal_expr(self),
             Expr::Unary(_operator, _operand) => visitor.visit_unary_expr(self),
+            Expr::Variable(_token) => visitor.vist_variable_expr(self),
         }
     }
 }
@@ -49,6 +51,10 @@ impl fmt::Display for Expr {
             // Display grouped expressions in parentheses
             Expr::Grouping(expression) => {
                 write!(f, "(group {})", expression)
+            }
+
+            Expr::Variable(token) => {
+                write!(f, "(varibale {:?})", token)
             }
         }
     }

@@ -25,7 +25,7 @@ impl<'a> Parser<'a> {
         let mut statements: Vec<Stmt> = Vec::new();
 
         while !self.is_at_end() {
-            if let Some(stmt) = self.statement() {
+            if let Some(stmt) = self.declaration() {
                 statements.push(stmt);
             }
         }
@@ -35,6 +35,10 @@ impl<'a> Parser<'a> {
 
     fn expression(&mut self) -> Option<Expr> {
         self.equality()
+    }
+
+    fn declaration(&mut self) -> Option<Stmt> {
+        todo!()
     }
 
     fn statement(&mut self) -> Option<Stmt> {

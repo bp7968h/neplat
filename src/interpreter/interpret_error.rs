@@ -2,6 +2,7 @@ use core::fmt;
 
 use crate::lexer::TokenType;
 
+#[derive(Debug)]
 pub enum InterpretError {
     DivisionByZero,
     TypeMismatch(String),

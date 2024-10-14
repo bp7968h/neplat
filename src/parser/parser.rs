@@ -1,5 +1,3 @@
-use std::{clone, string::ParseError};
-
 use crate::lexer::{Literal, Token, TokenType};
 
 use super::{expr::Expr, parser_error::ParserError, stmt::Stmt};
@@ -40,8 +38,12 @@ impl<'a> Parser<'a> {
     }
 
     fn declaration(&mut self) -> Option<Stmt> {
-        if self.match_token_types(&[TokenType::VAR]) {
-            return self.var_declaration();
+        if self.errors.is_empty() {
+            if self.match_token_types(&[TokenType::VAR]) {
+                return self.var_declaration();
+            }
+    
+            return self.statement();
         }
 
         self.synchronize();
@@ -185,6 +187,10 @@ impl<'a> Parser<'a> {
             return Some(Expr::Literal(Literal::NullLiteral));
         }
 
+        if self.match_token_types(&[TokenType::IDENTIFIER]) {
+            return Some(Expr::Variable(self.previous().clone()));
+        }
+
         if self.match_token_types(&[TokenType::NUMBER, TokenType::STRING]) {
             if let Some(literal) = self.previous().literal() {
                 return Some(Expr::Literal(literal.clone()));
@@ -195,10 +201,6 @@ impl<'a> Parser<'a> {
                 });
                 return None;
             }
-        }
-
-        if self.match_token_types(&[TokenType::IDENTIFIER]) {
-            return Some(Expr::Variable(self.previous().clone()));
         }
 
         if self.match_token_types(&[TokenType::LEFTPAREN]) {

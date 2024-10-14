@@ -3,15 +3,19 @@ use crate::{
     parser::{expr::Expr, stmt::Stmt, visitor::{ExprVisitor, StmtVisitor}},
 };
 
-use super::interpret_error::InterpretError;
+use super::{environment::Environment, interpret_error::InterpretError};
 
 pub struct Interpreter {
     errors: Vec<InterpretError>,
+    environment: Environment,
 }
 
 impl Interpreter {
     pub fn new() -> Self {
-        Interpreter { errors: Vec::new() }
+        Interpreter { 
+            errors: Vec::new(),
+            environment: Environment::new(), 
+        }
     }
 
     pub fn interpret(&mut self, statements: &[Stmt]) -> Result<(), &Vec<InterpretError>> {
@@ -271,7 +275,17 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
     }
 
     fn vist_variable_expr(&mut self, expr: &Expr) -> Option<Literal> {
-        todo!()
+        if let Expr::Variable(token) = expr {
+            if let Some(value) = self.environment.get(token.lexeme()) {
+                return Some(value.clone());
+            } else {
+                // Handle error for undefined variable
+                self.report_error(InterpretError::UndefinedVariable(token.lexeme().to_string()));
+                return None;
+            }
+        }
+
+        None
     }
 }
 
@@ -291,6 +305,16 @@ impl StmtVisitor<()> for Interpreter {
     }
 
     fn visit_var_stmt(&mut self, stmt: &Stmt) -> () {
-        todo!()
+        if let Stmt::Var(token, initializer) = stmt {
+            let value = if let Some(expr) = initializer {
+                self.evaluate(expr)
+            } else {
+                Some(Literal::NullLiteral)
+            };
+
+            if let Some(val) = value {
+                self.environment.define(token.lexeme(), val);
+            }
+        }
     }
 }

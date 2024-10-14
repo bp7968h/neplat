@@ -1,6 +1,6 @@
 use crate::lexer::{Literal, Token, TokenType};
 
-use super::{expr::Expr, parser_error::ParserError};
+use super::{expr::Expr, parser_error::ParserError, stmt::Stmt};
 
 pub struct Parser<'a> {
     current: usize,
@@ -21,18 +21,56 @@ impl<'a> Parser<'a> {
         &self.errors
     }
 
-    pub fn parse(&mut self) -> Option<Expr> {
-        let expr = self.expression();
+    pub fn parse(&mut self) -> Vec<Stmt> {
+        let mut statements: Vec<Stmt> = Vec::new();
 
-        if self.errors.is_empty() {
-            expr
-        } else {
-            None
+        while !self.is_at_end() {
+            if let Some(stmt) = self.statement() {
+                statements.push(stmt);
+            }
         }
+
+        return statements;
     }
 
     fn expression(&mut self) -> Option<Expr> {
         self.equality()
+    }
+
+    fn statement(&mut self) -> Option<Stmt> {
+        if self.match_token_types(&[TokenType::PRINT]) {
+            return self.print_statement();
+        }
+
+        self.expression_statement()
+    }
+
+    fn print_statement(&mut self) -> Option<Stmt> {
+        let expr = self.expression()?;
+        
+        if self.consume(&TokenType::SEMICOLON).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expected ';' after value.".to_string(),
+            });
+            return None;
+        }
+
+        Some(Stmt::Print(expr))
+    }
+
+    fn expression_statement(&mut self) -> Option<Stmt> {
+        let expr = self.expression()?;
+
+        if self.consume(&TokenType::SEMICOLON).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expected ';' after expression.".to_string(),
+            });
+            return None;
+        }
+
+        Some(Stmt::Expression(expr))
     }
 
     fn equality(&mut self) -> Option<Expr> {

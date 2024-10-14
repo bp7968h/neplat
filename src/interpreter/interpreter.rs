@@ -1,6 +1,6 @@
 use crate::{
     lexer::{Literal, TokenType},
-    parser::{expr::Expr, visitor::Visitor},
+    parser::{expr::Expr, visitor::ExprVisitor},
 };
 
 use super::interpret_error::InterpretError;
@@ -42,7 +42,7 @@ impl Interpreter {
     }
 }
 
-impl Visitor<Option<Literal>> for Interpreter {
+impl ExprVisitor<Option<Literal>> for Interpreter {
     fn visit_literal_expr(&mut self, expr: &Expr) -> Option<Literal> {
         if let Expr::Literal(value) = expr {
             Some(value.clone())

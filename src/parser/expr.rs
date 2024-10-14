@@ -2,7 +2,7 @@ use core::fmt;
 
 use crate::lexer::{Literal, Token};
 
-use super::visitor::Visitor;
+use super::visitor::ExprVisitor;
 
 #[derive(Debug)]
 pub enum Expr {
@@ -13,7 +13,7 @@ pub enum Expr {
 }
 
 impl Expr {
-    pub fn accept<T>(&self, visitor: &mut dyn Visitor<T>) -> T {
+    pub fn accept<T>(&self, visitor: &mut dyn ExprVisitor<T>) -> T {
         match self {
             Expr::Binary(_left, _operator, _right) => visitor.visit_binary_expression(self),
             Expr::Grouping(_group) => visitor.visit_grouping_expression(self),

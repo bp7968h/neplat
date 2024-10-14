@@ -210,11 +210,7 @@ impl<'a> Parser<'a> {
         if !self.is_at_end() {
             self.current += 1;
         }
-        // println!(
-        //     "advance() -> current: {}, previous: {:?}",
-        //     self.current,
-        //     self.previous()
-        // );
+
         self.previous()
     }
 

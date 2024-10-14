@@ -166,8 +166,13 @@ impl<'a> Lexer<'a> {
             value.push(self.advance() as char);
         }
 
-        if self.peek() == '.' && self.peek_next().is_ascii_digit() {
+        if self.peek() == '.' {
             value.push(self.advance() as char);
+
+            if !self.peek_next().is_ascii_digit() {
+                self.errors.push(LexError::InvalidNumber(self.line));
+                return Token::new(TokenType::NUMBER, &value, None, self.line);
+            }
 
             while self.peek().is_ascii_digit() {
                 value.push(self.advance() as char);
@@ -202,13 +207,13 @@ impl<'a> Lexer<'a> {
             self.errors.push(LexError::UnterminatedString(self.line));
             let string_value = String::from_utf8_lossy(&value).to_string();
 
-            return Token::new(TokenType::STRING, &string_value, None, self.line);
+            return Token::new(TokenType::STRING, &string_value, Some(Literal::StringLiteral("".to_string())), self.line);
         }
 
         self.advance();
         let string_value = String::from_utf8_lossy(&value).to_string();
 
-        Token::new(TokenType::STRING, &string_value, None, self.line)
+        Token::new(TokenType::STRING, &string_value, Some(Literal::StringLiteral(string_value.clone())), self.line)
     }
 
     fn peek_next(&self) -> char {
@@ -241,7 +246,7 @@ impl<'a> Lexer<'a> {
     }
 
     fn create_token(&self, token: TokenType) -> Token {
-        let lexeme = std::str::from_utf8(&self.source[self.start..self.current]).unwrap();
+        let lexeme = String::from_utf8_lossy(&self.source[self.start..self.current]).to_string();
         Token::new(token, &lexeme, None, self.line)
     }
 

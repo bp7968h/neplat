@@ -18,7 +18,7 @@ impl fmt::Display for InterpretError {
             InterpretError::TypeMismatch(err_str) => write!(f, "Error: {}", err_str),
             InterpretError::UnexpectedError(err_str) => write!(f, "Error: {}", err_str),
             InterpretError::UnsupportedOperator(token_type) => write!(f, "Error: Unknown type {:?}", token_type),
-            InterpretError::UndefinedVariable(err_str) => write!(f, "Error: Undefined variable '{}'", err_str),
+            InterpretError::UndefinedVariable(err_str) => write!(f, "Error: {}", err_str),
         }
     }
 }

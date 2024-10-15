@@ -34,12 +34,23 @@ impl Interpreter {
         stmt.accept(self);
     }
 
+    fn execute_block(&mut self, statements: Vec<Box<Stmt>>, new_env: Environment)  {
+        let previous_env = std::mem::replace(&mut self.environment, new_env);
+        for stmt in statements {
+            self.execute(&stmt);
+        }
+        self.environment = previous_env;
+    }
+
     fn evaluate(&mut self, expr: &Expr) -> Option<Literal> {
         expr.accept(self)
     }
 
     pub fn get_variable(&self, name: &str) -> Option<&Literal> {
-        self.environment.get(name)
+        match self.environment.get(name) {
+            Ok(value) => Some(value),
+            Err(_) => None,
+        }
     }
 
     pub fn get_errors(&self) -> &[InterpretError] {
@@ -296,20 +307,29 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
 
     fn vist_variable_expr(&mut self, expr: &Expr) -> Option<Literal> {
         if let Expr::Variable(token) = expr {
-            if let Some(value) = self.environment.get(token.lexeme()) {
-                return Some(value.clone());
-            } else {
-                // Handle error for undefined variable
-                self.report_error(InterpretError::UndefinedVariable(token.lexeme().to_string()));
-                return None;
+            match self.environment.get(token.lexeme()) {
+                Ok(value) => {
+                    return Some(value.clone())
+                },
+                Err(e) => {
+                    self.report_error(e);
+                    return None;
+                }
             }
         }
-
         None
     }
 }
 
 impl StmtVisitor<()> for Interpreter {
+
+    fn visit_block_stmt(&mut self, stmt: &Stmt) -> () {
+        if let Stmt::Block(stmt_list) = stmt {
+            let new_env = Environment::new_with_env(Box::new(self.environment.clone()));
+            self.execute_block(stmt_list.clone(), new_env);
+        }
+    }
+
     fn visit_expression_stmt(&mut self, stmt: &Stmt) -> () {
         if let Stmt::Expression(expr) = stmt {
             self.evaluate(expr);

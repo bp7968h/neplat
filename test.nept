@@ -1,3 +1,8 @@
+// No initializers.
 let a;
-a = 1;
-print a;
+let b;
+
+a = "assigned";
+print a; // OK, was assigned first.
+
+print b; // Error!

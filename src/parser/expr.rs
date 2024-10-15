@@ -4,7 +4,7 @@ use crate::lexer::{Literal, Token};
 
 use super::visitor::ExprVisitor;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Assign(Token, Box<Expr>),
     Binary(Box<Expr>, Token, Box<Expr>),

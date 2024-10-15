@@ -51,6 +51,10 @@ impl<'a> Parser<'a> {
             return self.print_statement();
         }
 
+        if self.match_token_types(&[TokenType::LEFTBRACE]) {
+            return Some(Stmt::Block(self.block()));
+        }
+
         self.expression_statement()
     }
 
@@ -105,6 +109,25 @@ impl<'a> Parser<'a> {
         }
 
         Some(Stmt::Expression(expr))
+    }
+
+    fn block(&mut self) -> Vec<Box<Stmt>> {
+        let mut statements: Vec<Box<Stmt>> = Vec::new();
+
+        while !self.check(&TokenType::RIGHTBRACE) && !self.is_at_end() {
+            if let Some(stmt) = self.declaration() {
+                statements.push(Box::new(stmt));
+            }
+        }
+
+        if self.consume(&TokenType::RIGHTBRACE).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expected '}' after block.".to_string(),
+            });
+        }
+
+        return statements
     }
 
     fn expression(&mut self) -> Option<Expr> {

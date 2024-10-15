@@ -1,5 +1,63 @@
-func sayHi(first, last) {
-  print "Hi, " + first + " " + last + "!";
+// Variables and Data Types
+manum name bhaneko "NepLat";  // Variable declared in Nepali
+let version = 1;            // Variable declared in English
+manum is_active bhaneko satya; // Boolean variable using Nepali-transliterated true
+let isBeta = false;           // Boolean variable using English
+
+// Conditionals
+yadi (version >= 1 ra is_active) {   // If statement in Nepali-transliterated with logical `ra` (and)
+    dekhau("Version is up-to-date and active!");  // Print in Nepali
+} athwa {                              // Else statement in Nepali-transliterated
+    print("Update needed or inactive.");  // Print in English
 }
 
-sayHi("Dear", "Reader");
+// Loops
+// For loop using English keywords
+for (let i = 0; i < 5; i = i + 1) {
+    print("Count (English): " + i);
+}
+
+// While loop using Nepali-transliterated keywords
+manum counter bhaneko 0;
+jaba_samma (counter bhanda_sano 5) {   // Nepali while loop
+    dekhau("Ginti (Nepali): " + counter);
+    counter bhaneko counter joda 1;    // Addition operation in Nepali-transliterated
+}
+
+// Functions
+karya greet(first_name, last_name) {   // Function declaration in Nepali-transliterated
+    dekhau("Namaste " + first_name + " " + last_name + "!"); // Concatenation with Nepali-transliterated print
+}
+
+func calculateSum(a, b) {              // Function declaration in English
+    print a + b;                      // Using print statement in English
+}
+
+// Function Calls
+greet("Dai", "Bhai");                 // Call function using Nepali-transliterated
+calculateSum(10, 20);
+
+// Logical Operations
+let isUpdated = version == 1 wa is_active;  // Logical `or` in Nepali-transliterated
+yadi (isUpdated) {
+    dekhau("System is updated or active.");
+}
+
+// Comments
+// Single-line comment example
+/* 
+   Multi-line comment example
+   Demonstrating how comments can be used 
+   to document code.
+*/
+
+// Error Handling (Demonstrated implicitly through invalid operations, e.g., divide by zero)
+manum result;
+yadi (is_active ra version barabar 1) {
+    result bhaneko 100 joda 25;
+    dekhau("Calculation result: " + result);
+}
+
+// Operator Overloading
+let concatenated = "Hello" + " " + "World!";  // String concatenation using overloaded `+`
+print(concatenated);

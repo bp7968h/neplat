@@ -13,6 +13,7 @@ pub enum Expr {
     Unary(Token, Box<Expr>),
     Variable(Token),
     Logical(Box<Expr>, Token, Box<Expr>),
+    Call(Box<Expr>, Token, Vec<Box<Expr>>),
 }
 
 impl Expr {
@@ -25,6 +26,7 @@ impl Expr {
             Expr::Unary(_operator, _operand) => visitor.visit_unary_expr(self),
             Expr::Variable(_token) => visitor.vist_variable_expr(self),
             Expr::Logical(_left, _operator, _right) => visitor.visit_logical_expression(self),
+            Expr::Call(_callee, _token, _args) => visitor.visit_call_expression(self),
         }
     }
 }
@@ -34,17 +36,17 @@ impl fmt::Display for Expr {
         match self {
             //Display assign expression in format
             Expr::Assign(token, expr) => {
-                write!(f, "assigned {} to {}", expr, token.lexeme())
+                write!(f, "{} {}", expr, token.lexeme())
             }
 
             // Display binary expressions in the format "(left operator right)"
             Expr::Binary(left, operator, right) => {
-                write!(f, "({} {} {})", left, operator.lexeme(), right)
+                write!(f, "{} {} {}", left, operator.lexeme(), right)
             }
             
             // Display unary expressions in the format "(operator operand)"
             Expr::Unary(operator, operand) => {
-                write!(f, "({} {})", operator.lexeme(), operand)
+                write!(f, "{} {}", operator.lexeme(), operand)
             }
 
             // Display literals as their actual values
@@ -54,21 +56,27 @@ impl fmt::Display for Expr {
                     Literal::NumberLiteral(n) => write!(f, "{}", n),
                     Literal::StringLiteral(s) => write!(f, "\"{}\"", s),
                     Literal::NullLiteral => write!(f, "null"),
+                    Literal::Callable(c) => write!(f, "{:?}", c),
                 }
             }
 
             // Display grouped expressions in parentheses
             Expr::Grouping(expression) => {
-                write!(f, "(group {})", expression)
+                write!(f, "{}", expression)
             }
 
             Expr::Variable(token) => {
-                write!(f, "(varible {:?})", token)
+                write!(f, "{:?}", token)
             }
 
             // Display logical expressions in the format "(left operator right)"
             Expr::Logical(left, operator, right) => {
-                write!(f, "({} {} {})", left, operator.lexeme(), right)
+                write!(f, "{} {} {}", left, operator.lexeme(), right)
+            }
+
+            // Display call expressions
+            Expr::Call(callee, operator, args) => {
+                write!(f, "{} {} {:?}", callee, operator.lexeme(), args)
             }
         }
     }

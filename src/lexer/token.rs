@@ -1,8 +1,10 @@
-use std::fmt;
+use std::{fmt, rc::Rc};
+
+use crate::interpreter::callable::Callable;
 
 use super::TokenType;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct Token {
     token_type: TokenType,
     lexeme: String,
@@ -49,12 +51,23 @@ impl fmt::Display for Token {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum Literal {
     StringLiteral(String),
     NumberLiteral(f64),
     BooleanLiteral(bool),
     NullLiteral,
+    Callable(Rc<dyn Callable>),
+}
+
+impl Literal {
+    pub fn as_callable(&self) -> Option<&dyn Callable> {
+        if let Literal::Callable(ref callable) = self {
+            Some(callable.as_ref())
+        } else {
+            None
+        }
+    }
 }
 
 impl fmt::Display for Literal {
@@ -64,6 +77,7 @@ impl fmt::Display for Literal {
             Self::NullLiteral => write!(f, "Null"),
             Self::NumberLiteral(num) => write!(f, "{}", num),
             Self::StringLiteral(str) => write!(f, "{}", str),
+            Self::Callable(c) => write!(f, "{:?}", c),
         }
     }
 }

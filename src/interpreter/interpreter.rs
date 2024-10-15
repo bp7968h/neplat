@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
     lexer::{Literal, TokenType},
     parser::{
@@ -7,7 +9,7 @@ use crate::{
     },
 };
 
-use super::{environment::Environment, interpret_error::InterpretError};
+use super::{callable::NepLatFunc, environment::Environment, interpret_error::InterpretError};
 
 pub struct Interpreter {
     errors: Vec<InterpretError>,
@@ -20,6 +22,10 @@ impl Interpreter {
             errors: Vec::new(),
             environment: Environment::new(),
         }
+    }
+
+    pub fn get_env(&self) -> Environment {
+        self.environment.clone()
     }
 
     pub fn interpret(&mut self, statements: &[Stmt]) -> Result<(), &Vec<InterpretError>> {
@@ -38,7 +44,7 @@ impl Interpreter {
         stmt.accept(self);
     }
 
-    fn execute_block(&mut self, statements: Vec<Box<Stmt>>, new_env: Environment) {
+    pub fn execute_block(&mut self, statements: Vec<Box<Stmt>>, new_env: Environment) {
         let _ = std::mem::replace(&mut self.environment, new_env);
         for stmt in statements {
             self.execute(&stmt);
@@ -373,6 +379,44 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
 
         None
     }
+
+    fn visit_call_expression(&mut self, expr: &Expr) -> Option<Literal> {
+        if let Expr::Call(callee, _paren, args) = expr {
+            let caller = self.evaluate(callee)?;
+
+            let mut func_args: Vec<Literal> = Vec::new();
+            for argument in args {
+                if let Some(arg) = self.evaluate(argument) {
+                    func_args.push(arg);
+                } else {
+                    return None;
+                }
+            }
+
+            if let Some(callable) = caller.as_callable() {
+                // Verify argument count matches the arity of the function
+                if func_args.len() != callable.arity() {
+                    self.report_error(InterpretError::ArgumentMismatch(
+                        format!(
+                            "Expected {} arguments but got {}.",
+                            callable.arity(),
+                            func_args.len()
+                        ),
+                    ));
+                    return None;
+                }
+
+                return callable.call(self, func_args)
+            } else {
+                self.report_error(InterpretError::TypeMismatch(
+                    "Can only call functions and classes.".to_string(),
+                ));
+                return None;
+            }
+        }
+
+        None
+    }
 }
 
 impl StmtVisitor<()> for Interpreter {
@@ -430,6 +474,15 @@ impl StmtVisitor<()> for Interpreter {
 
                     self.execute(body);
                 }
+        }
+    }
+
+    fn visit_function_stmt(&mut self, stmt: &Stmt) -> () {
+        if let Stmt::Function(name, params, body) = stmt {
+            let function = NepLatFunc::new(name.clone(), params.clone(), body.clone());
+            let function_literal = Literal::Callable(Rc::new(function));
+
+            self.environment.define(name.lexeme(), function_literal);
         }
     }
 }

@@ -30,13 +30,14 @@ manum temp;
 
 ko_lagi (manum b bhaneko 1; a bhanda_sano 10000; b bhaneko temp joda b) {
   dekhau a;
-  temp = a;
-  a = b;
+  temp bhaneko a;
+  a bhaneko b;
 }
 
 /*
 Can use either of the above or below
 */
+
 let a = 0;
 let temp;
 

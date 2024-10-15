@@ -16,6 +16,7 @@ pub enum Stmt {
     If(Expr, Box<Stmt>, Option<Box<Stmt>>),
     // condition, body
     While(Expr, Box<Stmt>),
+    Function(Token, Vec<Token>, Vec<Box<Stmt>>),
 }
 
 impl Stmt {
@@ -27,6 +28,7 @@ impl Stmt {
             Stmt::Var(_token, _expr) => visitor.visit_var_stmt(self),
             Stmt::If(_expr, _stmt_then, _stmt_else) => visitor.visit_if_stmt(self),
             Stmt::While(_expr, _stmt) => visitor.visit_while_stmt(self),
+            Stmt::Function(_name, _params, _body) => visitor.visit_function_stmt(self),
         }
     }
 }
@@ -45,7 +47,8 @@ impl fmt::Display for Stmt {
             Stmt::Print(expr) => write!(f, "{}", expr),
             Stmt::Var(tok,expr ) => write!(f, "{} {:?}", tok, expr),
             Stmt::If(condition, then_stmt, else_stmt ) => write!(f, "{} {} {:?}", condition, then_stmt, else_stmt),
-            Stmt::While(condition, body) => write!(f, "{} {}", condition, *body)
+            Stmt::While(condition, body) => write!(f, "{} {}", condition, *body),
+            Stmt::Function(name, params, body) => write!(f,"{} {:?} {:?}", name, params, body)
         }
     }
 }

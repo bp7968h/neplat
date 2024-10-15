@@ -38,7 +38,7 @@ impl<'a> Parser<'a> {
             if self.match_token_types(&[TokenType::VAR]) {
                 return self.var_declaration();
             }
-    
+
             return self.statement();
         }
 
@@ -67,7 +67,74 @@ impl<'a> Parser<'a> {
             return self.for_statement();
         }
 
+        if self.match_token_types(&[TokenType::FUNC]) {
+            return self.function_statement("function");
+        }
+
         self.expression_statement()
+    }
+
+    fn function_statement(&mut self, kind: &str) -> Option<Stmt> {
+        let name = self.consume(&TokenType::IDENTIFIER).cloned();
+        if name.is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: format!("Expected {} name.", kind),
+            });
+            return None;
+        }
+
+        if self.consume(&TokenType::LEFTPAREN).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: format!("Expected '(' after {} name.", kind),
+            });
+            return None;
+        }
+
+        let mut parameters: Vec<Token> = Vec::new();
+        if !self.check(&TokenType::RIGHTPAREN) {
+            loop {
+                if parameters.len() >= 255 {
+                    self.errors.push(ParserError::MaxFunctionArguments {
+                        line: self.peek().line().clone(),
+                        lexeme: "Cannot have more than 255 arguments.".to_string(),
+                    });
+                    return None;
+                }
+
+                if let Some(parameter) = self.consume(&TokenType::IDENTIFIER).cloned() {
+                    parameters.push(parameter);
+                } else {
+                    return None;
+                }
+
+                if !self.match_token_types(&[TokenType::COMMA]) {
+                    break;
+                }
+            }
+        }
+
+        if self.consume(&TokenType::RIGHTPAREN).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expected ')' after parameters".to_string(),
+            });
+            return None;
+        }
+
+        if self.consume(&TokenType::LEFTBRACE).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: format!("Expect '{{' before {} body.", kind),
+            });
+            return None;
+        }
+
+        let body = self.block();
+        
+        Some(Stmt::Function(name.unwrap(), parameters, body))
+
     }
 
     fn for_statement(&mut self) -> Option<Stmt> {
@@ -119,10 +186,7 @@ impl<'a> Parser<'a> {
 
         // If increment is present, execute it after the body
         if let Some(increment) = increment {
-            body = Stmt::Block(vec![
-                Box::new(body),
-                Box::new(Stmt::Expression(increment)),
-            ]);
+            body = Stmt::Block(vec![Box::new(body), Box::new(Stmt::Expression(increment))]);
         }
 
         // If no condition is present, assume `true` (infinite loop)
@@ -132,10 +196,7 @@ impl<'a> Parser<'a> {
 
         // If initializer exists, execute it before the loop
         if let Some(initializer) = initializer {
-            body = Stmt::Block(vec![
-                Box::new(initializer),
-                Box::new(body),
-            ]);
+            body = Stmt::Block(vec![Box::new(initializer), Box::new(body)]);
         }
 
         Some(body)
@@ -161,7 +222,7 @@ impl<'a> Parser<'a> {
         }
 
         let body = Box::new(self.statement()?);
-        
+
         Some(Stmt::While(condition, body))
     }
 
@@ -196,7 +257,7 @@ impl<'a> Parser<'a> {
 
     fn print_statement(&mut self) -> Option<Stmt> {
         let expr = self.expression()?;
-        
+
         if self.consume(&TokenType::SEMICOLON).is_none() {
             self.errors.push(ParserError::ExpectedExpression {
                 line: self.peek().line().clone(),
@@ -226,11 +287,11 @@ impl<'a> Parser<'a> {
             return Some(Stmt::Var(var_name, initializer));
         }
 
-        self.errors.push(ParserError::InvalidDecleration { 
-            line: self.peek().line().clone(), 
-            lexeme: "Expect variable name.".to_string() 
+        self.errors.push(ParserError::InvalidDecleration {
+            line: self.peek().line().clone(),
+            lexeme: "Expect variable name.".to_string(),
         });
-        None 
+        None
     }
 
     fn expression_statement(&mut self) -> Option<Stmt> {
@@ -263,7 +324,7 @@ impl<'a> Parser<'a> {
             });
         }
 
-        return statements
+        return statements;
     }
 
     fn expression(&mut self) -> Option<Expr> {
@@ -275,7 +336,7 @@ impl<'a> Parser<'a> {
 
         if self.match_token_types(&[TokenType::EQUAL]) {
             let equals = self.previous().clone();
-            
+
             if let Some(value) = self.assignment() {
                 if let Expr::Variable(name) = expr {
                     return Some(Expr::Assign(name, Box::new(value)));
@@ -377,7 +438,62 @@ impl<'a> Parser<'a> {
             return Some(Expr::Unary(operator, Box::new(right)));
         }
 
-        self.primary()
+        self.call()
+    }
+
+    fn call(&mut self) -> Option<Expr> {
+        let mut expr = self.primary()?;
+
+        loop {
+            if self.match_token_types(&[TokenType::LEFTPAREN]) {
+                if let Some(exp) = self.finish_call(expr.clone()) {
+                    expr = exp;
+                }
+            } else {
+                break;
+            }
+        }
+
+        Some(expr)
+    }
+
+    fn finish_call(&mut self, callee: Expr) -> Option<Expr> {
+        let mut arguments: Vec<Box<Expr>> = Vec::new();
+
+        if !self.check(&TokenType::RIGHTPAREN) {
+            loop {
+                if arguments.len() >= 255 {
+                    self.errors.push(ParserError::MaxFunctionArguments {
+                        line: self.peek().line().clone(),
+                        lexeme: "Cannot have more than 255 arguments.".to_string(),
+                    });
+                    return None;
+                }
+
+                if let Some(expr) = self.expression() {
+                    arguments.push(Box::new(expr));
+                }
+
+                if !self.match_token_types(&[TokenType::COMMA]) {
+                    break;
+                }
+            }
+        }
+
+        let paren = self.consume(&TokenType::RIGHTPAREN);
+        if paren.is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expected ')' after arguments.".to_string(),
+            });
+            return None;
+        }
+
+        Some(Expr::Call(
+            Box::new(callee),
+            paren.unwrap().clone(),
+            arguments,
+        ))
     }
 
     fn primary(&mut self) -> Option<Expr> {

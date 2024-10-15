@@ -21,6 +21,10 @@ pub enum ParserError {
     InvalidAssignment {
         line: usize,
         lexeme: String,
+    },
+    MaxFunctionArguments {
+        line: usize,
+        lexeme: String,
     }
 }
 
@@ -45,6 +49,9 @@ impl fmt::Display for ParserError {
             },
             ParserError::InvalidAssignment { line, lexeme } => {
                 write!(f, "Line {} at '{}': Invalid assignment.", line, lexeme)
+            },
+            ParserError::MaxFunctionArguments { line, lexeme } => {
+                write!(f, "Line {} at '{}': Maximum 255 arguments allowed.", line, lexeme)
             },
         }
     }

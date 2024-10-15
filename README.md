@@ -24,6 +24,29 @@ if (x > y) {            // Uses English for conditionals
 }
 ```
 
+```plaintext
+manum a bhaneko 0;
+manum temp;
+
+ko_lagi (manum b bhaneko 1; a bhanda_sano 10000; b bhaneko temp joda b) {
+  dekhau a;
+  temp = a;
+  a = b;
+}
+
+/*
+Can use either of the above or below
+*/
+let a = 0;
+let temp;
+
+for (let b = 1; a < 10000; b = temp + b) {
+  print a;
+  temp = a;
+  a = b;
+}
+```
+
 ## Keyword Mapping
 
 The table below lists the English (Latin) keywords and their corresponding Nepalese transliterations. You can use either version in your code:

@@ -485,4 +485,10 @@ impl StmtVisitor<()> for Interpreter {
             self.environment.define(name.lexeme(), function_literal);
         }
     }
+
+    fn visit_return_stmt(&mut self, stmt: &Stmt) -> () {
+        if let Stmt::Return(_keyword, value) = stmt {
+            todo!()
+        }
+    }
 }

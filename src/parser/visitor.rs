@@ -19,4 +19,5 @@ pub trait StmtVisitor<T> {
     fn visit_if_stmt(&mut self, stmt: &Stmt) -> T;
     fn visit_while_stmt(&mut self, stmt: &Stmt) -> T;
     fn visit_function_stmt(&mut self, stmt: &Stmt) -> T;
+    fn visit_return_stmt(&mut self, stmt: &Stmt) -> T;
 }

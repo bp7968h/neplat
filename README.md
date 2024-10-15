@@ -25,6 +25,7 @@ if (x > y) {            // Uses English for conditionals
 ```
 
 ```plaintext
+// nepali transliterated
 manum a bhaneko 0;
 manum temp;
 
@@ -38,6 +39,7 @@ ko_lagi (manum b bhaneko 1; a bhanda_sano 10000; b bhaneko temp joda b) {
 Can use either of the above or below
 */
 
+// english
 let a = 0;
 let temp;
 

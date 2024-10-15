@@ -71,7 +71,30 @@ impl<'a> Parser<'a> {
             return self.function_statement("function");
         }
 
+        if self.match_token_types(&[TokenType::RETURN]) {
+            return self.return_statement();
+        }
+
         self.expression_statement()
+    }
+
+    fn return_statement(&mut self) -> Option<Stmt> {
+        let keyword = self.previous().clone();
+
+        let mut value: Option<Expr> = None;
+        if !self.check(&TokenType::SEMICOLON) {
+            value = self.expression();
+        }
+
+        if self.consume(&TokenType::SEMICOLON).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expect ';' after return value.".to_string(),
+            });
+            return None;
+        }        
+
+        Some(Stmt::Return(keyword, value))
     }
 
     fn function_statement(&mut self, kind: &str) -> Option<Stmt> {

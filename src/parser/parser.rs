@@ -33,10 +33,6 @@ impl<'a> Parser<'a> {
         statements
     }
 
-    fn expression(&mut self) -> Option<Expr> {
-        self.equality()
-    }
-
     fn declaration(&mut self) -> Option<Stmt> {
         if self.errors.is_empty() {
             if self.match_token_types(&[TokenType::VAR]) {
@@ -109,6 +105,31 @@ impl<'a> Parser<'a> {
         }
 
         Some(Stmt::Expression(expr))
+    }
+
+    fn expression(&mut self) -> Option<Expr> {
+        self.assignment()
+    }
+
+    fn assignment(&mut self) -> Option<Expr> {
+        let expr = self.equality()?;
+
+        if self.match_token_types(&[TokenType::EQUAL]) {
+            let equals = self.previous().clone();
+            
+            if let Some(value) = self.assignment() {
+                if let Expr::Variable(name) = expr {
+                    return Some(Expr::Assign(name, Box::new(value)));
+                } else {
+                    self.errors.push(ParserError::InvalidAssignment {
+                        line: equals.line().clone(),
+                        lexeme: equals.lexeme().to_string(),
+                    });
+                }
+            }
+        }
+
+        Some(expr)
     }
 
     fn equality(&mut self) -> Option<Expr> {

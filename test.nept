@@ -1,6 +1,3 @@
-let a = 1;
-let b = 2;
-manum c bhaneko 3;
-manum d bhaneko 4;
-print a + b;
-dekhau c joda d;
+let a;
+a = 1;
+print a;

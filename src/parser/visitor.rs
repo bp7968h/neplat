@@ -1,6 +1,7 @@
 use super::{expr::Expr, stmt::Stmt};
 
 pub trait ExprVisitor<T> {
+    fn visit_assign_expression(&mut self, expr: &Expr) -> T;
     fn visit_binary_expression(&mut self, expr: &Expr) -> T;
     fn visit_grouping_expression(&mut self, expr: &Expr) -> T;
     fn visit_literal_expr(&mut self, expr: &Expr) -> T;

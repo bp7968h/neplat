@@ -278,6 +278,22 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
         }
     }
 
+    fn visit_assign_expression(&mut self, expr: &Expr) -> Option<Literal> {
+        if let Expr::Assign(token, value_expr) = expr {
+            let value = self.evaluate(value_expr)?;
+
+            match self.environment.assign(token, value.clone()) {
+                Ok(_) => Some(value), 
+                Err(error) => {
+                    self.report_error(error);
+                    None
+                }
+            }
+        } else {
+            None
+        }
+    }
+
     fn vist_variable_expr(&mut self, expr: &Expr) -> Option<Literal> {
         if let Expr::Variable(token) = expr {
             if let Some(value) = self.environment.get(token.lexeme()) {

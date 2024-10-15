@@ -6,6 +6,7 @@ use super::visitor::ExprVisitor;
 
 #[derive(Debug)]
 pub enum Expr {
+    Assign(Token, Box<Expr>),
     Binary(Box<Expr>, Token, Box<Expr>),
     Grouping(Box<Expr>),
     Literal(Literal),
@@ -16,6 +17,7 @@ pub enum Expr {
 impl Expr {
     pub fn accept<T>(&self, visitor: &mut dyn ExprVisitor<T>) -> T {
         match self {
+            Expr::Assign(_token, _expr) => visitor.visit_assign_expression(self),
             Expr::Binary(_left, _operator, _right) => visitor.visit_binary_expression(self),
             Expr::Grouping(_group) => visitor.visit_grouping_expression(self),
             Expr::Literal(_value) => visitor.visit_literal_expr(self),
@@ -28,6 +30,11 @@ impl Expr {
 impl fmt::Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            //Display assign expression in format
+            Expr::Assign(token, expr) => {
+                write!(f, "assigned {} to {}", expr, token.lexeme())
+            }
+
             // Display binary expressions in the format "(left operator right)"
             Expr::Binary(left, operator, right) => {
                 write!(f, "({} {} {})", left, operator.lexeme(), right)

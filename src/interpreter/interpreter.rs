@@ -487,7 +487,7 @@ impl StmtVisitor<()> for Interpreter {
     }
 
     fn visit_return_stmt(&mut self, stmt: &Stmt) -> () {
-        if let Stmt::Return(_keyword, value) = stmt {
+        if let Stmt::Return(_keyword, _value) = stmt {
             todo!()
         }
     }

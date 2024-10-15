@@ -1,6 +1,10 @@
 use crate::{
     lexer::{Literal, TokenType},
-    parser::{expr::Expr, stmt::Stmt, visitor::{ExprVisitor, StmtVisitor}},
+    parser::{
+        expr::Expr,
+        stmt::Stmt,
+        visitor::{ExprVisitor, StmtVisitor},
+    },
 };
 
 use super::{environment::Environment, interpret_error::InterpretError};
@@ -12,9 +16,9 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub fn new() -> Self {
-        Interpreter { 
+        Interpreter {
             errors: Vec::new(),
-            environment: Environment::new(), 
+            environment: Environment::new(),
         }
     }
 
@@ -34,7 +38,7 @@ impl Interpreter {
         stmt.accept(self);
     }
 
-    fn execute_block(&mut self, statements: Vec<Box<Stmt>>, new_env: Environment)  {
+    fn execute_block(&mut self, statements: Vec<Box<Stmt>>, new_env: Environment) {
         let previous_env = std::mem::replace(&mut self.environment, new_env);
         for stmt in statements {
             self.execute(&stmt);
@@ -113,18 +117,18 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
                     // Handle numeric addition
                     (Literal::NumberLiteral(left_num), Literal::NumberLiteral(right_num)) => {
                         Some(Literal::NumberLiteral(left_num + right_num))
-                    },
+                    }
                     // Handle string concatenation with +
                     (Literal::StringLiteral(left_str), Literal::StringLiteral(right_str)) => {
                         Some(Literal::StringLiteral(left_str + &right_str))
-                    },
+                    }
                     // Handle string + number or number + string
                     (Literal::StringLiteral(left_str), Literal::NumberLiteral(right_num)) => {
                         Some(Literal::StringLiteral(left_str + &right_num.to_string()))
-                    },
+                    }
                     (Literal::NumberLiteral(left_num), Literal::StringLiteral(right_str)) => {
                         Some(Literal::StringLiteral(left_num.to_string() + &right_str))
-                    },
+                    }
                     _ => {
                         self.report_error(InterpretError::TypeMismatch(
                             "Type mismatch in addition".to_string(),
@@ -294,7 +298,7 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
             let value = self.evaluate(value_expr)?;
 
             match self.environment.assign(token, value.clone()) {
-                Ok(_) => Some(value), 
+                Ok(_) => Some(value),
                 Err(error) => {
                     self.report_error(error);
                     None
@@ -307,10 +311,23 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
 
     fn vist_variable_expr(&mut self, expr: &Expr) -> Option<Literal> {
         if let Expr::Variable(token) = expr {
-            match self.environment.get(token.lexeme()) {
+            let token_name = token.lexeme();
+            match self.environment.get(token_name) {
                 Ok(value) => {
-                    return Some(value.clone())
-                },
+                    match value {
+                        &Literal::NullLiteral => {
+                            self.report_error(InterpretError::UnassignmedVariable(format!(
+                                "Variable {} is not assigned",
+                                token_name
+                            )));
+                            return None
+                        }
+                        _ =>  {
+                            return Some(value.clone())
+                        },
+                    }
+                    // return Some(value.clone())
+                }
                 Err(e) => {
                     self.report_error(e);
                     return None;
@@ -322,7 +339,6 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
 }
 
 impl StmtVisitor<()> for Interpreter {
-
     fn visit_block_stmt(&mut self, stmt: &Stmt) -> () {
         if let Stmt::Block(stmt_list) = stmt {
             let new_env = Environment::new_with_env(Box::new(self.environment.clone()));

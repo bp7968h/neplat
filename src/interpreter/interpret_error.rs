@@ -9,6 +9,7 @@ pub enum InterpretError {
     UnsupportedOperator(TokenType),
     UnexpectedError(String),
     UndefinedVariable(String),
+    UnassignmedVariable(String),
 }
 
 impl fmt::Display for InterpretError {
@@ -19,6 +20,7 @@ impl fmt::Display for InterpretError {
             InterpretError::UnexpectedError(err_str) => write!(f, "Error: {}", err_str),
             InterpretError::UnsupportedOperator(token_type) => write!(f, "Error: Unknown type {:?}", token_type),
             InterpretError::UndefinedVariable(err_str) => write!(f, "Error: {}", err_str),
+            InterpretError::UnassignmedVariable(err_str) => write!(f, "Error: {}", err_str),
         }
     }
 }

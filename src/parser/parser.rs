@@ -63,7 +63,82 @@ impl<'a> Parser<'a> {
             return self.while_statement();
         }
 
+        if self.match_token_types(&[TokenType::FOR]) {
+            return self.for_statement();
+        }
+
         self.expression_statement()
+    }
+
+    fn for_statement(&mut self) -> Option<Stmt> {
+        if self.consume(&TokenType::LEFTPAREN).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expect '(' after 'for'.".to_string(),
+            });
+            return None;
+        }
+
+        let initializer = if self.match_token_types(&[TokenType::SEMICOLON]) {
+            None
+        } else if self.match_token_types(&[TokenType::VAR]) {
+            self.var_declaration()
+        } else {
+            self.expression_statement()
+        };
+
+        let condition = if !self.check(&TokenType::SEMICOLON) {
+            self.expression()
+        } else {
+            None
+        };
+
+        if self.consume(&TokenType::SEMICOLON).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expect ';' after loop condition.".to_string(),
+            });
+            return None;
+        }
+
+        let increment = if !self.check(&TokenType::RIGHTPAREN) {
+            self.expression()
+        } else {
+            None
+        };
+
+        if self.consume(&TokenType::RIGHTPAREN).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expect ')' after for clauses.".to_string(),
+            });
+            return None;
+        }
+
+        let mut body = self.statement()?;
+
+        // If increment is present, execute it after the body
+        if let Some(increment) = increment {
+            body = Stmt::Block(vec![
+                Box::new(body),
+                Box::new(Stmt::Expression(increment)),
+            ]);
+        }
+
+        // If no condition is present, assume `true` (infinite loop)
+        let condition = condition.unwrap_or(Expr::Literal(Literal::BooleanLiteral(true)));
+        // Wrap the body in a while loop using the condition
+        body = Stmt::While(condition, Box::new(body));
+
+        // If initializer exists, execute it before the loop
+        if let Some(initializer) = initializer {
+            body = Stmt::Block(vec![
+                Box::new(initializer),
+                Box::new(body),
+            ]);
+        }
+
+        Some(body)
     }
 
     fn while_statement(&mut self) -> Option<Stmt> {

@@ -1,11 +1,8 @@
-let i = 0;
-let j = 0;
-while (i < 5) {
-    print i;
-    i = i + 1;
-    while (j < 5){
-      print j;
-      j = j + 1;
-    }
-    j = 0;
+let a = 0;
+let temp;
+
+for (let b = 1; a < 10000; b = temp + b) {
+  print a;
+  temp = a;
+  a = b;
 }

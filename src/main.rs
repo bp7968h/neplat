@@ -32,6 +32,11 @@ fn run(file_name: &str) {
                         process::exit(1);
                     }
 
+                    for t in tokens.iter() {
+                        print!("{} ", t)
+                    } 
+                    println!();
+
                     // Parsing
                     let mut parser = Parser::new(&tokens);
                     let statements = parser.parse();
@@ -42,6 +47,11 @@ fn run(file_name: &str) {
                                 eprintln!("\t{}", error);
                             }
                             process::exit(1);
+                    }
+
+                    for (i, s) in statements.iter().enumerate() {
+
+                        println!("{}: {:?}, {}", i, s, s);
                     }
 
                     let mut interpreter = Interpreter::new();

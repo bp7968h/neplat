@@ -38,6 +38,10 @@ impl Interpreter {
         expr.accept(self)
     }
 
+    pub fn get_variable(&self, name: &str) -> Option<&Literal> {
+        self.environment.get(name)
+    }
+
     pub fn get_errors(&self) -> &[InterpretError] {
         &self.errors
     }

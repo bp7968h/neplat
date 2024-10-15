@@ -63,7 +63,7 @@ impl fmt::Display for Expr {
             }
 
             Expr::Variable(token) => {
-                write!(f, "(varibale {:?})", token)
+                write!(f, "(varible {:?})", token)
             }
 
             // Display logical expressions in the format "(left operator right)"

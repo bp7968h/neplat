@@ -59,7 +59,35 @@ impl<'a> Parser<'a> {
             return Some(Stmt::Block(self.block()));
         }
 
+        if self.match_token_types(&[TokenType::WHILE]) {
+            return self.while_statement();
+        }
+
         self.expression_statement()
+    }
+
+    fn while_statement(&mut self) -> Option<Stmt> {
+        if self.consume(&TokenType::LEFTPAREN).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expect '(' after 'while'.".to_string(),
+            });
+            return None;
+        }
+
+        let condition = self.expression()?;
+
+        if self.consume(&TokenType::RIGHTPAREN).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expect ')' after 'while' condition.".to_string(),
+            });
+            return None;
+        }
+
+        let body = Box::new(self.statement()?);
+        
+        Some(Stmt::While(condition, body))
     }
 
     fn if_statement(&mut self) -> Option<Stmt> {

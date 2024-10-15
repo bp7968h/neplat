@@ -6,7 +6,7 @@ use super::interpret_error::InterpretError;
 #[derive(Debug, Clone)]
 pub struct Environment {
     values: HashMap<String, Literal>,
-    enclosing: Option<Box<Environment>>,
+    pub enclosing: Option<Box<Environment>>,
 }
 
 impl Environment {
@@ -25,6 +25,7 @@ impl Environment {
     }
 
     pub fn get(&self, name: &str) -> Result<&Literal, InterpretError> {
+
         if let Some(value) = self.values.get(name) {
             return Ok(value);
         } else if let Some(ref enclosing_env) = self.enclosing {
@@ -40,7 +41,8 @@ impl Environment {
         let var_name = name.lexeme().to_string();
 
         if self.values.contains_key(&var_name) {
-            self.values.insert(var_name, value);
+            self.values.insert(var_name.to_string(), value.clone());
+            
             return Ok(());
         } else if let Some(ref mut enclosing_env) = self.enclosing {
             return enclosing_env.assign(name, value);

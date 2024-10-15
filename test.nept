@@ -1,2 +1,11 @@
-print "hi" or 2; // "hi".
-print null or "yes"; // "yes".
+let i = 0;
+let j = 0;
+while (i < 5) {
+    print i;
+    i = i + 1;
+    while (j < 5){
+      print j;
+      j = j + 1;
+    }
+    j = 0;
+}

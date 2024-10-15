@@ -39,11 +39,14 @@ impl Interpreter {
     }
 
     fn execute_block(&mut self, statements: Vec<Box<Stmt>>, new_env: Environment) {
-        let previous_env = std::mem::replace(&mut self.environment, new_env);
+        let _ = std::mem::replace(&mut self.environment, new_env);
         for stmt in statements {
             self.execute(&stmt);
         }
-        self.environment = previous_env;
+
+        if let Some(enclosed) = self.environment.enclosing.clone() {
+            self.environment = *enclosed;
+        }
     }
 
     fn evaluate(&mut self, expr: &Expr) -> Option<Literal> {
@@ -306,10 +309,12 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
             let value = self.evaluate(value_expr)?;
 
             match self.environment.assign(token, value.clone()) {
-                Ok(_) => Some(value),
+                Ok(_) => {
+                    return Some(value);
+                },
                 Err(error) => {
                     self.report_error(error);
-                    None
+                    return None;
                 }
             }
         } else {
@@ -413,6 +418,18 @@ impl StmtVisitor<()> for Interpreter {
             } else if let Some(else_branch) = else_branch {
                 self.execute(else_branch);
             }
+        }
+    }
+
+    fn visit_while_stmt(&mut self, stmt: &Stmt) -> () {
+        if let Stmt::While(condition, body) = stmt {
+                while let Some(cond_value) = self.evaluate(condition) {
+                    if !self.is_truthy(&cond_value) {
+                        break;
+                    }
+
+                    self.execute(body);
+                }
         }
     }
 }

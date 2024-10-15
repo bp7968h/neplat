@@ -2,5 +2,13 @@
 name = "neplat"
 version = "0.1.0"
 edition = "2021"
+authors = ["Bhuwan Pandit <bhuwanpandit110@gmail.com>"]
+description = "A Nepali-English interpreted programming language"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/bp7968h/neplat"
+homepage = "https://github.com/bp7968h/neplat"
+documentation = "https://github.com/bp7968h/neplat#readme"
+readme = "README.md"
+keywords = ["language", "interpreter", "Nepali", "bilingual", "programming"]
 
 [dependencies]

@@ -64,6 +64,14 @@ impl Interpreter {
     fn report_error(&mut self, error: InterpretError) {
         self.errors.push(error);
     }
+
+    fn is_truthy(&self, value: &Literal) -> bool {
+        match value {
+            Literal::BooleanLiteral(b) => *b,
+            Literal::NullLiteral => false,
+            _ => true,
+        }
+    }
 }
 
 impl ExprVisitor<Option<Literal>> for Interpreter {
@@ -338,7 +346,27 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
     }
 
     fn visit_logical_expression(&mut self, expr: &Expr) -> Option<Literal> {
-        todo!()
+        if let Expr::Logical(left_expr, operator, right_expr) = expr {
+            let left_value = self.evaluate(left_expr)?;
+
+            match operator.token_type() {
+                TokenType::OR => {
+                    if self.is_truthy(&left_value) {
+                        return Some(left_value);
+                    }
+                },
+                TokenType::AND => {
+                    if !self.is_truthy(&left_value) {
+                        return Some(left_value);
+                    }
+                }
+                _ => {}
+            }
+            let right_value = self.evaluate(right_expr)?;
+            return Some(right_value);
+        }
+
+        None
     }
 }
 

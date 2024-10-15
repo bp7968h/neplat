@@ -1,6 +1,2 @@
-let a = 1;
-{
-  let a = a + 2;
-  print a;
-}
-print a;
+print "hi" or 2; // "hi".
+print null or "yes"; // "yes".

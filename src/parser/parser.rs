@@ -168,7 +168,7 @@ impl<'a> Parser<'a> {
     }
 
     fn assignment(&mut self) -> Option<Expr> {
-        let expr = self.equality()?;
+        let expr = self.or()?;
 
         if self.match_token_types(&[TokenType::EQUAL]) {
             let equals = self.previous().clone();
@@ -189,7 +189,29 @@ impl<'a> Parser<'a> {
     }
 
     fn or(&mut self) -> Option<Expr> {
-        todo!()
+        let mut expr = self.and()?;
+
+        while self.match_token_types(&[TokenType::OR]) {
+            let operator = self.previous().clone();
+            let right = self.and()?;
+
+            expr = Expr::Logical(Box::new(expr), operator, Box::new(right))
+        }
+
+        Some(expr)
+    }
+
+    fn and(&mut self) -> Option<Expr> {
+        let mut expr = self.equality()?;
+
+        while self.match_token_types(&[TokenType::AND]) {
+            let operator = self.previous().clone();
+            let right = self.equality()?;
+
+            expr = Expr::Logical(Box::new(expr), operator, Box::new(right))
+        }
+
+        Some(expr)
     }
 
     fn equality(&mut self) -> Option<Expr> {

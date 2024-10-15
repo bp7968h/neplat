@@ -11,7 +11,9 @@ pub enum Stmt {
     Block(Vec<Box<Stmt>>),
     Expression(Expr),
     Print(Expr),
-    Var(Token, Option<Expr>)
+    Var(Token, Option<Expr>),
+    //condition, then, else 
+    If(Expr, Box<Stmt>, Option<Box<Stmt>>)
 }
 
 impl Stmt {
@@ -21,6 +23,7 @@ impl Stmt {
             Stmt::Expression(_expr) => visitor.visit_expression_stmt(self),
             Stmt::Print(_expr) => visitor.visit_print_stmt(self),
             Stmt::Var(_token, _expr) => visitor.visit_var_stmt(self),
+            Stmt::If(_expr, _stmt_then, _stmt_else) => visitor.visit_if_stmt(self),
         }
     }
 }
@@ -37,7 +40,8 @@ impl fmt::Display for Stmt {
             },
             Stmt::Expression(expr) => write!(f, "{}", expr),
             Stmt::Print(expr) => write!(f, "{}", expr),
-            Stmt::Var(tok,expr ) => { write!(f, "{} {:?}", tok, expr)},
+            Stmt::Var(tok,expr ) => write!(f, "{} {:?}", tok, expr),
+            Stmt::If(condition, then_stmt, else_stmt ) => write!(f, "{} {} {:?}", condition, then_stmt, else_stmt),
         }
     }
 }

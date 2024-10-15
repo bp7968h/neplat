@@ -47,6 +47,10 @@ impl<'a> Parser<'a> {
     }
 
     fn statement(&mut self) -> Option<Stmt> {
+        if self.match_token_types(&[TokenType::IF]) {
+            return self.if_statement();
+        }
+
         if self.match_token_types(&[TokenType::PRINT]) {
             return self.print_statement();
         }
@@ -56,6 +60,35 @@ impl<'a> Parser<'a> {
         }
 
         self.expression_statement()
+    }
+
+    fn if_statement(&mut self) -> Option<Stmt> {
+        if self.consume(&TokenType::LEFTPAREN).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expect '(' after 'if'.".to_string(),
+            });
+            return None;
+        }
+
+        let condition = self.expression()?;
+
+        if self.consume(&TokenType::RIGHTPAREN).is_none() {
+            self.errors.push(ParserError::ExpectedExpression {
+                line: self.peek().line().clone(),
+                lexeme: "Expect ')' after 'if' condition.".to_string(),
+            });
+            return None;
+        }
+
+        let then_branch = Box::new(self.statement()?);
+        let else_branch = if self.match_token_types(&[TokenType::ELSE]) {
+            Some(Box::new(self.statement()?))
+        } else {
+            None
+        };
+
+        Some(Stmt::If(condition, then_branch, else_branch))
     }
 
     fn print_statement(&mut self) -> Option<Stmt> {
@@ -153,6 +186,10 @@ impl<'a> Parser<'a> {
         }
 
         Some(expr)
+    }
+
+    fn or(&mut self) -> Option<Expr> {
+        todo!()
     }
 
     fn equality(&mut self) -> Option<Expr> {

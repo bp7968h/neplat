@@ -336,6 +336,10 @@ impl ExprVisitor<Option<Literal>> for Interpreter {
         }
         None
     }
+
+    fn visit_logical_expression(&mut self, expr: &Expr) -> Option<Literal> {
+        todo!()
+    }
 }
 
 impl StmtVisitor<()> for Interpreter {
@@ -370,6 +374,16 @@ impl StmtVisitor<()> for Interpreter {
 
             if let Some(val) = value {
                 self.environment.define(token.lexeme(), val);
+            }
+        }
+    }
+
+    fn visit_if_stmt(&mut self, stmt: &Stmt) -> () {
+        if let Stmt::If(condition, then_branch, else_branch) = stmt {
+            if let Some(Literal::BooleanLiteral(true)) = self.evaluate(condition) {
+                self.execute(then_branch);
+            } else if let Some(else_branch) = else_branch {
+                self.execute(else_branch);
             }
         }
     }

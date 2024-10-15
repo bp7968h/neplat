@@ -12,6 +12,7 @@ pub enum Expr {
     Literal(Literal),
     Unary(Token, Box<Expr>),
     Variable(Token),
+    Logical(Box<Expr>, Token, Box<Expr>),
 }
 
 impl Expr {
@@ -23,6 +24,7 @@ impl Expr {
             Expr::Literal(_value) => visitor.visit_literal_expr(self),
             Expr::Unary(_operator, _operand) => visitor.visit_unary_expr(self),
             Expr::Variable(_token) => visitor.vist_variable_expr(self),
+            Expr::Logical(_left, _operator, _right) => visitor.visit_logical_expression(self),
         }
     }
 }
@@ -62,6 +64,11 @@ impl fmt::Display for Expr {
 
             Expr::Variable(token) => {
                 write!(f, "(varibale {:?})", token)
+            }
+
+            // Display logical expressions in the format "(left operator right)"
+            Expr::Logical(left, operator, right) => {
+                write!(f, "({} {} {})", left, operator.lexeme(), right)
             }
         }
     }
